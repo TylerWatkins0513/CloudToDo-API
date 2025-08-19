@@ -1,0 +1,79 @@
+name: build-deploy-gcloud
+on:
+    #On push to main or pull request start process
+  push:
+    branches: ["main"]
+  pull_request:
+
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+        #pulls recent repo in Ubuntu-runner
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+        #Setup node v20 environment 
+          node-version: '20'
+          cache: 'npm'
+        #Run clean install of node_modules ==> then use our linter ==> run test
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+#Build and deploy image to dockerhub
+  docker:
+    #Run if any and only if the test pass ^
+    needs: test
+    #Only start this step if the branch that is changed is main
+    if: github.ref == 'refs/heads/main'
+    #Create a new ubuntu-VM with the latest code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_KEY }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          #Push to dockerhub with new tag as github.sha
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/rest-api:${{ github.sha }}
+
+#
+  deploy:
+    #Deploy if and only if docker step runs all the way through
+    needs: docker
+    #spin up new ubuntu-vm for this step
+    runs-on: ubuntu-latest
+    environment: { name: production }
+    steps:
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+        #Install google cloud CLI on vm
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          gcloud run deploy rest-api \
+            --project=${{ vars.GCP_PROJECTID }} \
+            --region=${{ vars.GCP_REGION }} \
+            --image=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/rest-api:latest \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=3000 \
+            --quiet
+          URL=$(gcloud run services describe rest-api --region=${{ vars.GCP_REGION }} --format='value(status.url)')
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+      - name: Show service URL
+        run: echo "Deployed at ${{ steps.deploy.outputs.url }}"

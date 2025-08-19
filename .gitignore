@@ -32,7 +32,8 @@ Thumbs.db
 .idea/
 
 # GitHub / CI
-.github/
+.github/*
+!.github/workflows/
 
 # Temporary files
 *.swp
