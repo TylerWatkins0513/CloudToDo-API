@@ -5,11 +5,11 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "dev" : "nodemon server.js",
+    "dev": "nodemon server.js",
     "start": "node server.js",
-    "lint" : "eslint .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest --runInBand"
-
   },
   "keywords": [],
   "author": "",
@@ -20,12 +20,14 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
     "eslint": "^9.33.0",
+    "globals": "^15.15.0",
     "jest": "^30.0.5",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4"
   },
   "jest": {
-    "testEnvironment" : "node"
+    "testEnvironment": "node"
   }
 }
