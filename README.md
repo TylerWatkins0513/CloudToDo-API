@@ -53,7 +53,11 @@ docker run -p 3000:3000 yourname/cloudToDo-api
 * POST /v1/todos => add new todo (with JSON body { "goal": "..." })
 
 
+## FUTURE UPDATES
 
+* Rebrand from todo => job tracker
+* Implement a DB for long term storage
+* Implement a front-end
 
 
 
