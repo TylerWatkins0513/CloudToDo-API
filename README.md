@@ -35,8 +35,8 @@ The purpose of this project was to get familiar with a devOps style deployment o
 ## Build Docker Image and Run 🐳
 
 ```
-docker build -t yourname/cloudToDo-api .
-docker run -p 3000:3000 yourname/cloudToDo-api
+docker build -t tylerWatkins0513/rest-api .
+docker run -p 3000:3000 tylerWatkins0513/rest-api
 ```
 
 ## HOW CI/CD WORKS
