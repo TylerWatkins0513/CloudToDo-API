@@ -42,7 +42,7 @@ docker run -p 3000:3000 tylerWatkins0513/rest-api
 ## HOW CI/CD WORKS
 
 * Any push to main -> github actions workflow -> Run tests -> Build docker container -> Push Docker container to google cloud run ✅
-  * If any step fails it ***will*** stop workflow
+  * If any step fails it ***WILL*** stop workflow
     
 * Secrets and variables stored in Github Actions secrets/variables
 
